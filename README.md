@@ -1,1 +1,3 @@
-# Glass_Curtain_Wall_Flatness_Spalling_and_Flatness_Detection_System
+# Glass_Curtain_Wall_Flatness_Spalling_Detection_System
+
+`git pull` to update submodule
