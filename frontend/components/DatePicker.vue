@@ -9,7 +9,7 @@
 import {useBreakpoints, breakpointsTailwind} from '@vueuse/core'
 import {DatePicker as VCalendarDatePicker} from 'v-calendar'
 // @ts-ignore
-import type {DatePickerDate, DatePickerRangeObject} from 'v-calendar/dist/types/src/use/datePicker'
+import type {DatePickerDate, DatePickerRangeObject} from 'v-calendar/dist/types/src/use/datePicker.js'
 import 'v-calendar/dist/style.css'
 
 defineOptions({
