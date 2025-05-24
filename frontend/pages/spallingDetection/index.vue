@@ -1,14 +1,16 @@
 <template>
+    <!-- 总布局按钮 -->
     <div class="main-container">
       <div style="display: flex; justify-content: flex-end; margin-bottom: 5px; margin-right: 5px">
         <el-button @click="GoToDash">进入仪表盘</el-button>
         <el-button type="primary" @click="backToMain">返回主页</el-button>
       </div>
+
+      <!-- 上传图片部分 -->
       <el-divider content-position="center">
           本地上传
       </el-divider>
       <div class="upload-container">
-        <!-- 显示上传后的图片 -->
         <div v-if="imagePreviewUrl" class="uploaded-image-preview">
           <img :src="imagePreviewUrl" alt="Uploaded Image" class="preview-img" />
           <el-button size="small" type="danger" @click="removeImage">
@@ -35,6 +37,7 @@
         </el-upload>
       </div>
   
+      <!-- 检测按钮 -->
       <el-row :gutter="10">
         <el-col :span="3">
           <el-button type="primary" @click="startDetection">
@@ -46,14 +49,19 @@
         </el-col>
       </el-row>
 
+      <!-- 检测结果部分 -->
       <el-divider content-position="center">
         检测结果
       </el-divider>
 
       <el-scrollbar class="scrollbar-container">
-        <div v-if="ImgResult" class="result">
-          {{ ImgResult }} <!-- 显示检测结果 -->
+        <!-- 文字结果 -->
+        <div v-if="ImgResult" class="result-container">
+          <div :class="['result', ImgResult === '爆裂' ? 'danger' : 'safe']">
+            {{ ImgResult }}
+          </div>
         </div>
+        <!-- 图片处理结果 -->
         <div v-if="processedImageUrl" class="image-preview">
           <img :src="processedImageUrl" alt="Processed Image" class="preview-img" />
         </div>
@@ -64,20 +72,21 @@
   
   <script setup>
   import { ref } from 'vue';
-  import {  Close, UploadFilled } from '@element-plus/icons-vue';
-  import { Upload } from '@element-plus/icons-vue';
+  import { Upload, Close, UploadFilled } from '@element-plus/icons-vue';
   import axios from 'axios';
   import { useRouter } from 'vue-router';
-  import {jwtDecode} from 'jwt-decode';
+  // import {jwtDecode} from 'jwt-decode';
+
   const router = useRouter();
   const downloadImageUrl = ref(''); // 存储上传后的可下载图片路径
   const uploadedFile = ref(null); // 存储上传的文件
   const ImgResult = ref(null); // 爆裂结果
-  const imagePreviewUrl = ref(null); // 存储图片预览的 URL
-  const processedImageUrl = ref(null); // 存储处理图片预览的 URL
-  const uploadUrl = ref('http://110.42.214.164:9000/oss/upload/user/upload/'); // 文件上传的 URL
-  const filename = ref('');
+  const imagePreviewUrl = ref(null); // 存储上传图片预览的 URL
+  const processedImageUrl = ref(null); // 存储结果图片预览的 URL
+  const uploadUrl = ref('http://110.42.214.164:9000/oss/upload/user/upload/'); // 文件上传OSS的 URL
+  const filename = ref(''); //上传图片名称
 
+  // 主布局按钮的功能
   const backToMain = () => {
     router.push('/');
   };
@@ -91,6 +100,7 @@
     });
   };
 
+  // 统一当前时间格式
   const getFormattedDate=()=> {
     const now = new Date();
     const year = now.getFullYear();
@@ -103,6 +113,7 @@
     return `${year}${month}${day}${hours}${minutes}${seconds}`;
   }
   
+  // 图片上传至OSS
   const beforeUpload = async (file) => {
     filename.value = getFormattedDate()+'.jpg';
     const formData = new FormData();
@@ -111,7 +122,7 @@
     formData.append('password', "tongji-icw-1805");
 
     try {
-      // 文件名只包含数字，字母和-
+      // 文件名只能包含数字，字母和-
         const response = await axios.post(uploadUrl.value + filename.value, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
@@ -138,6 +149,7 @@
     filename = '';
   };
 
+  // 开始检测
   const startDetection = () => {
     //从localstorage获取token
     // const authToken = localStorage.getItem('authToken');
@@ -151,7 +163,6 @@
     // const decoded =jwtDecode(authToken);
     // console.log("user name:",decoded.username);
 
-
     if (!uploadedFile.value) {
         console.error('请先上传图片');
         return;
@@ -164,8 +175,8 @@
     console.log("下载原图的url：", downloadImageUrl.value);
 
     axios
-        .post('http://110.42.214.164:8006/defect/classify', formData)
-        .then((response) => {
+      .post('http://127.0.0.1:8080/defect/classify', formData)
+      .then((response) => {
         console.log('检测结果：', response.data);
         ImgResult.value = response.data.result=='defect'?"爆裂":"未爆裂"; // 只提取结果部分
         console.log(ImgResult.value)
@@ -176,7 +187,7 @@
             form.append('username', 'zwj');
             form.append('url', downloadImageUrl.value);
             axios
-            .post('http://110.42.214.164:8006/defect/showDefect', form)
+            .post('http://127.0.0.1:8080/defect/showDefect', form)
             .then((processResponse) => {
                 console.log("处理后的图片url：", processResponse.data.downloadUrl); // 后端返回处理后图片的可下载url
                 try {
@@ -201,12 +212,12 @@
             // 如果检测到 undefect，直接显示原图
             processedImageUrl.value = imagePreviewUrl.value;
         }
-        })
-        .catch((error) => {
-          ElMessage.error('检测失败');
-          console.error('检测失败：', error);
-        });
-};
+      })
+      .catch((error) => {
+        ElMessage.error('检测失败');
+        console.error('检测失败：', error);
+      });
+  };
 
   </script>
   
@@ -218,6 +229,7 @@
     margin: 10px;
   }
   
+  /* 上传图片部分 */
   .upload-container {
     padding: 10px;
     background: #f5f7fa;
@@ -237,18 +249,42 @@
     justify-content: center;
   }
 
-  .preview-img {
-    max-height: 200px;
-    width: auto;
+  /* 检测结果部分 */
+
+  .result-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
   }
 
   .result {
-    color: brown;
-    background: #e0bebe;
-    padding: 5px;
-    width: 65px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: inline-block;
+  }
+
+  /* 爆裂时显示为红色背景 */
+  .danger {
+    background-color: #ffe5e5;
+    color: #d32f2f;
+    border: 1px solid #f44336;
+  }
+
+  /* 未爆裂时显示为绿色背景 */
+  .safe {
+    background-color: #e8f5e9;
+    color: #388e3c;
+    border: 1px solid #4caf50;
+  }
+
+  .preview-img {
+    max-height: 200px;
+    width: auto;
     border-radius: 5px;
-    margin: 5px;
   }
 
   .scrollbar-container {
