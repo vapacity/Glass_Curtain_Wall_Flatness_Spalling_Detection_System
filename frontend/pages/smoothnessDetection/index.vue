@@ -64,6 +64,7 @@
   import {  Close, UploadFilled } from '@element-plus/icons-vue';
   import { Upload } from '@element-plus/icons-vue';
   import axios from 'axios';
+  import { flatAPI, localflatAPI, OSS } from "../../router/axios"; 
   import { useRouter } from 'vue-router';
   const router = useRouter();
   const downloadImageUrl = ref(''); // 存储上传后的可下载图片路径
@@ -71,7 +72,7 @@
   const ImgResult = ref(null); // 爆裂结果
   const imagePreviewUrl = ref(null); // 存储图片预览的 URL
   const processedImageUrl = ref(null); // 存储处理图片预览的 URL
-  const uploadUrl = ref('http://110.42.214.164:9000/oss/upload/user/upload/'); // 文件上传的 URL
+  const uploadUrl = ref(OSS); // 文件上传的 URL
   const filename = ref('');
 
   const backToMain = () => {
@@ -103,8 +104,8 @@
     filename.value = getFormattedDate()+'.jpg';
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('userName', "flatness-detection");
-    formData.append('password', "tongji-icw-3455");
+    formData.append('userName', import.meta.env.VITE_FLAT_OSS_NAME);
+    formData.append('password', import.meta.env.VITE_FLAT_OSS_PSD);
 
     try {
       // 文件名只包含数字，字母和-
@@ -153,8 +154,8 @@
         return;
     }
 
-    axios
-        .post('http://110.42.214.164:8002/flatness/detect', {
+    flatAPI
+        .post('/detect', {
             username:"zwj",
             url:downloadImageUrl.value
         })

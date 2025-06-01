@@ -74,6 +74,7 @@
   import { ref } from 'vue';
   import { Upload, Close, UploadFilled } from '@element-plus/icons-vue';
   import axios from 'axios';
+  import { spallingAPI, localspallingAPI, OSS } from "../../router/axios";
   import { useRouter } from 'vue-router';
   // import {jwtDecode} from 'jwt-decode';
 
@@ -83,7 +84,7 @@
   const ImgResult = ref(null); // 爆裂结果
   const imagePreviewUrl = ref(null); // 存储上传图片预览的 URL
   const processedImageUrl = ref(null); // 存储结果图片预览的 URL
-  const uploadUrl = ref('http://110.42.214.164:9000/oss/upload/user/upload/'); // 文件上传OSS的 URL
+  const uploadUrl = ref(OSS); // 文件上传OSS的 URL
   const filename = ref(''); //上传图片名称
 
   // 主布局按钮的功能
@@ -104,7 +105,7 @@
   const getFormattedDate=()=> {
     const now = new Date();
     const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // 注意：getMonth() 返回的是 0-11
+    const month = String(now.getMonth() + 1).padStart(2, '0'); 
     const day = String(now.getDate()).padStart(2, '0');
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -118,8 +119,8 @@
     filename.value = getFormattedDate()+'.jpg';
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('userName', "spalling-detection");
-    formData.append('password', "tongji-icw-1805");
+    formData.append('userName', import.meta.env.VITE_SPALLING_OSS_NAME);
+    formData.append('password', import.meta.env.VITE_SPALLING_OSS_PSD);
 
     try {
       // 文件名只能包含数字，字母和-
@@ -130,14 +131,13 @@
         });
         console.log(`上传成功: ${response.data || '文件已上传'}`);
         downloadImageUrl.value = response.data; 
-        uploadedFile.value = file; // 存储上传的文件
-        imagePreviewUrl.value = URL.createObjectURL(file); // 创建图片预览的 URL
+        uploadedFile.value = file;
+        imagePreviewUrl.value = URL.createObjectURL(file); 
     } catch (error) {
       ElMessage.error('上传失败');
       console.error('上传失败：', error.response?.data?.message || error.message);
     }
 
-    // 返回 false 会阻止默认的上传行为，交给自定义处理
     return false; 
   };
 
@@ -174,20 +174,19 @@
     formData.append('url', downloadImageUrl.value);
     console.log("下载原图的url：", downloadImageUrl.value);
 
-    axios
-      .post('http://127.0.0.1:8080/defect/classify', formData)
+    spallingAPI
+      .post('/classify', formData)
       .then((response) => {
         console.log('检测结果：', response.data);
-        ImgResult.value = response.data.result=='defect'?"爆裂":"未爆裂"; // 只提取结果部分
+        ImgResult.value = response.data.result=='defect'?"爆裂":"未爆裂"; 
         console.log(ImgResult.value)
         if (ImgResult.value === '爆裂') {
-          console.log("12lasdjfklajflkasdjfklasdjflkasjfklasjdfklasj")
             // 如果检测到 defect，调用 process_image 后端 API
             let form = new FormData();
             form.append('username', 'zwj');
             form.append('url', downloadImageUrl.value);
-            axios
-            .post('http://127.0.0.1:8080/defect/showDefect', form)
+            spallingAPI
+            .post('/showDefect', form)
             .then((processResponse) => {
                 console.log("处理后的图片url：", processResponse.data.downloadUrl); // 后端返回处理后图片的可下载url
                 try {

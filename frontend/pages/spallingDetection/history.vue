@@ -43,7 +43,7 @@
   
   <script setup>
   import { ref, onMounted } from "vue";
-  import axios from "axios";
+  import { spallingAPI } from "../../router/axios";
   import { useRouter } from "vue-router";
   import jsPDF from "jspdf";
   import '../../assets/fonts/simhei-normal'
@@ -72,7 +72,7 @@
     // console.log("user name:",decoded.username);
 
     try {
-      const response = await axios.get(`http://127.0.0.1:8080/defect/history?username=zwj`, { timeout: 10000 });
+      const response = await spallingAPI.get(`/history?username=zwj`, { timeout: 10000 });
       console.log(response);
 
       // 使用 Promise.all 来并发处理所有数据
