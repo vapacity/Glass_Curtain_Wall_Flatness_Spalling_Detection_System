@@ -64,7 +64,7 @@
   import {  Close, UploadFilled } from '@element-plus/icons-vue';
   import { Upload } from '@element-plus/icons-vue';
   import axios from 'axios';
-  import { flatAPI, localflatAPI, OSS } from "../../router/axios"; 
+  import { flatnessAPI, localflatnessAPI, OSS } from "../../router/axios"; 
   import { useRouter } from 'vue-router';
   const router = useRouter();
   const downloadImageUrl = ref(''); // 存储上传后的可下载图片路径
@@ -154,7 +154,7 @@
         return;
     }
 
-    flatAPI
+    flatnessAPI
         .post('/detect', {
             username:"zwj",
             url:downloadImageUrl.value
