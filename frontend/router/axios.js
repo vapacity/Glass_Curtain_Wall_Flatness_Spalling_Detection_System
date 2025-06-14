@@ -8,7 +8,7 @@ export const localspallingAPI = baseInstance.create({
   baseURL: import.meta.env.VITE_LOCAL_SPALLING_API_BASE_URL, 
 });
 
-export const localflatAPI = baseInstance.create({
+export const localflatnessAPI = baseInstance.create({
   baseURL: import.meta.env.VITE_LOCAL_FLAT_API_BASE_URL, 
 });
 
@@ -16,7 +16,7 @@ export const spallingAPI = baseInstance.create({
   baseURL: import.meta.env.VITE_SPALLING_API_BASE_URL, 
 });
 
-export const flatAPI = baseInstance.create({
+export const flatnessAPI = baseInstance.create({
   baseURL: import.meta.env.VITE_FLAT_API_BASE_URL, 
 });
 
